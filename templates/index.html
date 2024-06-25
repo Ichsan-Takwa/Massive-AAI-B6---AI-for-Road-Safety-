@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Set karakter encoding dan viewport -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Judul halaman dan referensi ke file CSS dan JavaScript -->
+  <title>YOLO-MASSIVE</title>
+  <link rel="stylesheet" type="text/css" href="../static/index.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js">
+  </script>
+  <script type="text/javascript" src="../static/index.js"></script>
+</head>
+
+<body>
+  <!-- Kontainer aplikasi -->
+  <div class="app">
+    <!-- Header aplikasi -->
+    <div class="app-header">
+      <!-- Judul aplikasi -->
+      <p class="title-wrap">
+        Deteksi Saat Berkendara
+      </p>
+      <!-- Tombol untuk membuka kamera video -->
+      <button name="cam" class="button" id="opencam" style="font-size: 0.9em;">Video Cam</button>
+      <!-- Kontainer untuk menampilkan gambar sebelum diunggah -->
+      <div class="pre-img">
+        <span>
+          <img id="imagebox" src="" />
+        </span>
+      </div>
+      <!-- Form untuk memilih file gambar -->
+      <form>
+        <input id="imageinput" type="file" name="image" onchange="readUrl(this)">
+      </form>
+      <!-- Tombol untuk mengirim gambar -->
+      <button name="send" id="sendbutton" onclick="changeColor()">Kirim</button>
+      <!-- Kontainer untuk tampilan loading -->
+      <div class="loading">
+        <div class="percent">100%</div>
+        <div class="text">SELESAI!</div>
+        <!-- Progress bar -->
+        <div class="progress-bar">
+          <div class="progress">
+          </div>
+        </div>
+      </div>
+      <!-- Tombol untuk output suara Bahasa Inggris -->
+      <button id="voice-english-output" class="voiceoutputbtn-1">Suara Bahasa Inggris</button>
+      <!-- Tombol untuk output suara Bahasa Indonesia -->
+      <button id="voice-indo-output" class="voiceoutputbtn-2">Suara Bahasa Lain</button>
+    </div>
+  </div>
+
+</body>
+<script>
+  window.watsonAssistantChatOptions = {
+    integrationID: "d4cc38ef-3fa2-4432-afd0-e73f73ae0091", // The ID of this integration.
+    region: "us-south", // The region your integration is hosted in.
+    serviceInstanceID: "2f50fd6d-721f-4537-8b41-0a7a2c296cc0", // The ID of your service instance.
+    onLoad: async (instance) => { await instance.render(); }
+  };
+  setTimeout(function(){
+    const t=document.createElement('script');
+    t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+    document.head.appendChild(t);
+  });
+</script>
+</html>

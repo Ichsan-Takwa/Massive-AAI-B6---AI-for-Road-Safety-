@@ -1,0 +1,7 @@
+# this project using python 3.10
+Flask
+PIL
+numpy
+opencv-python
+torch
+pygame
