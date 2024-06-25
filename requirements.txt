@@ -1,7 +1,8 @@
 # this project using python 3.10
-Flask
-PIL
-numpy
-opencv-python
-torch
-pygame
+Flask==3.0.3
+PIL==10.3.0
+numpy==1.25.2
+matplotlib==3.9.0
+opencv-python==4.10.0.84
+torch==2.3.1
+simpleaudio==1.0.4
