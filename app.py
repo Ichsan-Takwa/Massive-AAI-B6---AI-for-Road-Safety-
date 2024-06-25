@@ -169,4 +169,4 @@ def opencam():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=8080, debug=True, threaded=False)   #ganti dengan alamat ipmu
+    app.run(host="localhost", port=8080, debug=False, threaded=False)   #ganti dengan alamat ipmu
