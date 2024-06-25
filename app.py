@@ -26,10 +26,10 @@ import pathlib
 import time
 from collections import deque
 
-import simpleaudio as sa
+# import simpleaudio as sa
 
 # Load the .wav file
-wave_obj = sa.WaveObject.from_wave_file("./alarm.wav")
+# wave_obj = sa.WaveObject.from_wave_file("./alarm.wav")
 
 
 
@@ -91,8 +91,9 @@ def gen_frames():
                 prediction_counts[label].append(current_time)
                 if len(prediction_counts[label]) >= 6 and (current_time - prediction_counts[label][0] <= time_limits[label]):
                     # Play the audio
-                    play_obj = wave_obj.play()
-                    play_obj.wait_done()
+                    #play_obj = wave_obj.play()
+                    #play_obj.wait_done()
+			pass
             else:
                 # Hapus waktu yang sudah terlalu lama
                 while prediction_counts[label] and (current_time - prediction_counts[label][0] > time_limits[label]):
