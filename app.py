@@ -12,7 +12,7 @@ import subprocess
 
 from pathlib import Path
 import pathlib
-pathlib.PosixPath = pathlib.WindowsPath
+# pathlib.PosixPath = pathlib.WindowsPath
 
 from flask import Flask, Response
 import cv2
