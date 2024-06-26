@@ -4,10 +4,10 @@ import torch
 from PIL import Image
 from io import BytesIO
 
-from pathlib import Path
-import pathlib
+# from pathlib import Path
+# import pathlib
 
-pathlib.PosixPath = pathlib.WindowsPath
+# pathlib.PosixPath = pathlib.WindowsPath
 
 one = [ "", "one ", "two ", "three ", "four ",
         "five ", "six ", "seven ", "eight ",
