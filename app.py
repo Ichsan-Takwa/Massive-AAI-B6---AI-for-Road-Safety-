@@ -34,7 +34,7 @@ wave_obj = sa.WaveObject.from_wave_file("./alarm.wav")
 
 
 # Mengubah Path agar kompatibel dengan Windows
-pathlib.PosixPath = pathlib.WindowsPath
+# pathlib.PosixPath = pathlib.WindowsPath
 
 # Path ke model YOLOv5 yang sudah dilatih
 model_path = './yolov5/runs/exp/weights/best (2).pt'
