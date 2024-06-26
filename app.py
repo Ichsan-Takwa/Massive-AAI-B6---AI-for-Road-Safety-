@@ -10,8 +10,8 @@ from yolo_detection import run_model
 from language_conversion import convert_lang
 import subprocess
 
-from pathlib import Path
-import pathlib
+# from pathlib import Path
+# import pathlib
 # pathlib.PosixPath = pathlib.WindowsPath
 
 from flask import Flask, Response
@@ -21,8 +21,6 @@ import torch
 from matplotlib import pyplot as plt
 import numpy as np
 import cv2
-from pathlib import Path
-import pathlib
 import time
 from collections import deque
 
