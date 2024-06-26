@@ -35,7 +35,7 @@ wave_obj = sa.WaveObject.from_wave_file("./alarm.wav")
 # pathlib.PosixPath = pathlib.WindowsPath
 
 # Path ke model YOLOv5 yang sudah dilatih
-model_path = './yolov5/runs/exp/weights/best (2).pt'
+model_path = './yolov5/runs/exp/weights/best.pt'
 
 # Memuat model YOLOv5
 model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path)
