@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install libasound2-dev  -y
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 libasound2-dev  -y
 
 COPY requirements.txt .
 
