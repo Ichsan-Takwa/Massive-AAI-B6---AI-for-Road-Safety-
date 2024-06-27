@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 libasound2-dev build-essential -y
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 libasound2-dev build-essential python3-opencv libopencv-dev v4l-utils -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
