@@ -4,7 +4,7 @@ import os, io, sys
 import numpy as np
 import cv2
 import base64
-
+from io import BytesIO
 from werkzeug.utils import secure_filename, send_from_directory
 from yolo_detection import run_model
 from language_conversion import convert_lang
@@ -24,12 +24,17 @@ import cv2
 import time
 from collections import deque
 
-import simpleaudio as sa
+from pydub import AudioSegment
+from pydub.playback import play
+import threading
 
 # Load the .wav file
-wave_obj = sa.WaveObject.from_wave_file("./alarm.wav")
+x, w, h, y =  0,0,0,0
 
 
+def play_audio(file_path):
+    audio = AudioSegment.from_mp3(file_path)
+    play(audio)
 
 # Mengubah Path agar kompatibel dengan Windows
 # pathlib.PosixPath = pathlib.WindowsPath
@@ -40,12 +45,7 @@ model_path = './yolov5/runs/exp/weights/best.pt'
 # Memuat model YOLOv5
 model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path)
 
-# Menggunakan kamera video (0 menunjukkan kamera default)
-cap = cv2.VideoCapture(0)
-
 # Variabel untuk menyimpan prediksi dalam periode waktu tertentu
-
-
 app = Flask(__name__)
 
 prediction_counts = {
@@ -65,55 +65,6 @@ time_limits = {
     'Yawn': 6
 }
 
-
-def gen_frames():
-    camera = cv2.VideoCapture(0)  # Mengakses kamera
-    # Loop untuk membaca setiap frame dari kamera
-    while camera.isOpened():
-        # Membaca frame dari kamera
-        ret, frame = camera.read()
-        
-        if not ret:
-            break
-        
-        # Mendapatkan hasil deteksi objek dari model YOLOv5
-        results = model(frame)
-
-        # Memeriksa hasil deteksi
-        labels = results.pandas().xyxy[0]['name'].tolist()
-        current_time = time.time()
-
-        # Update counts dan kondisi untuk setiap kelas
-        for label in prediction_counts.keys():
-            if label in labels:
-                prediction_counts[label].append(current_time)
-                if len(prediction_counts[label]) >= 6 and (current_time - prediction_counts[label][0] <= time_limits[label]):
-                    # Play the audio
-                    play_obj = wave_obj.play()
-                    play_obj.wait_done()
-            else:
-                # Hapus waktu yang sudah terlalu lama
-                while prediction_counts[label] and (current_time - prediction_counts[label][0] > time_limits[label]):
-                    prediction_counts[label].popleft()
-
-                    # Menggunakan generator untuk stream frame
-        
-        # Menggambar bounding boxes pada frame
-        for *xyxy, conf, cls in results.xyxy[0]:
-            label = f'{model.names[int(cls)]} {conf:.2f}'
-            cv2.rectangle(frame, (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3])), (0, 0, 255), 2)
-            cv2.putText(frame, label, (int(xyxy[0]), int(xyxy[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-
-
-        result_arr = results.render()[0]
-        # Encode frame ke format JPEG
-        ret, buffer = cv2.imencode('.jpg', result_arr)
-        frame = buffer.tobytes()
-        
-        yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-       
 # Route untuk memproses gambar, menjalankan model deteksi objek, dan konversi bahasa
 @app.route('/project_massive', methods=['POST'])
 def mask_image():
@@ -161,10 +112,77 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
 
+@app.route('/detect', methods=['GET'])
+def detect():
+    # threading.Thread(target=play_audio, args=('./alarm.wav',)).start()
+    return render_template('detect.html')
+
 # Route untuk menjalankan skrip deteksi kamera
-@app.route("/opencam", methods=['GET'])
+@app.route("/opencam", methods=['POST'])
 def opencam():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    data = request.get_json()
+    image_data = data['image']
+    image_data = image_data.split(',')[1]  # Remove the "data:image/png;base64," part
+    image = Image.open(BytesIO(base64.b64decode(image_data)))
+
+
+       # Mendapatkan hasil deteksi objek dari model YOLOv5
+    result = model(image)
+    
+
+    
+    
+    if (result.pandas().xywh[0].shape[0] == 0 ): return {
+        "objects": [
+             {"x": 0, "y": 0, "width": 0, "height": 0}
+        ]
+    }
+    
+ 
+    
+    
+    w = result.pandas().xywh[0]["width"][0]
+    h = result.pandas().xywh[0]["height"][0]
+    x = result.pandas().xywh[0]["xcenter"][0] - (w//2)
+    y= result.pandas().xywh[0]["ycenter"][0] - (h//2)
+    
+    label = result.pandas().xyxy[0]['name'][0]
+    if (label == "SleepyDriving" or label == 'Yawn'):
+        result.save()
+    confidence = round(float(result.crop()[0]["conf"]),2)
+ 
+    # Memeriksa hasil deteksi
+    current_time = time.time()
+
+    danger=0
+    print(prediction_counts)
+    # Update counts dan kondisi untuk setiap kelas
+    labels = result.pandas().xyxy[0]['name'].tolist()
+    for label in prediction_counts.keys():
+        if label in labels:
+            prediction_counts[label].append(current_time)
+            if len(prediction_counts[label]) >= 6 and (current_time - prediction_counts[label][0] <= time_limits[label]):
+                # Play the audio
+                print("DETECTED &*&**^*&^*&^&^&*^&*^")
+                print("DETECTED &*&**^*&^*&^&^&*^&*^")
+                print("DETECTED &*&**^*&^*&^&^&*^&*^")
+                danger=1
+
+        else:
+            # Hapus waktu yang sudah terlalu lama
+            while prediction_counts[label] and (current_time - prediction_counts[label][0] > time_limits[label]):
+                prediction_counts[label].popleft()
+
+                # Menggunakan generator untuk stream frame
+                
+    response = {
+        "objects": [
+             {"x": x, "y": y, "width": w, "height": h, "label": label, "confidence": confidence, "danger":danger}
+        ]
+    }
+                
+    return jsonify(response)
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=8080, debug=False, threaded=False)   #ganti dengan alamat ipmu
+    app.run(host="localhost", port=8080, debug=True, threaded=False)   #ganti dengan alamat ipmu
+

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #video {
+            display: none;
+        }
+        #canvas {
+            border: 5px solid black;
+            height: 100%;
+            width: 100%;
+
+        }
+    </style>
+</head>
+<body>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        let color = {'DangerousDriving':"red",
+            'Distracted':"yellow",
+            'Drinking':"yellow",
+            'SafeDriving':"green",
+            'SleepyDriving':"red",
+            'Yawn':"yellow"}
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+            })
+            .catch(function(err) {
+                console.log("An error occurred: " + err);
+            });
+
+        video.addEventListener('play', function() {
+            const fps = 3; // Frames per second
+            setInterval(() => {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/png');
+                fetch('/opencam', {
+                    method: 'POST',
+                    body: JSON.stringify({ image: imageData}),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    data.objects.forEach(obj => {
+                        const label = `${obj.label}: ${(obj.confidence * 100).toFixed(2)}%`;
+                        
+                        if (obj.label == undefined){
+                            return
+                        }
+                        context.beginPath();
+                        context.rect(obj.x, obj.y, obj.width, obj.height);
+                        context.lineWidth = 2;
+                        context.strokeStyle = color[obj.label];
+                        context.stroke();
+                        context.closePath();
+
+                        // Draw label and confidence
+                        context.font = '18px Arial';
+                        context.fillStyle = color[obj.label];
+                        context.fillText(label, obj.x, obj.y > 20 ? obj.y - 10 : obj.y + 20);
+
+                        // play alarm video
+                        if (obj.danger == 1){
+                            var audio = new Audio("{{ url_for('static',filename='alarm.wav') }}");
+                            audio.play();
+                        }
+
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }, 1000 / fps);
+        });
+    </script>
+</body>
+</html>

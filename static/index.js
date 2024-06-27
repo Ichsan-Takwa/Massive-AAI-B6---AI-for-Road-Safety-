@@ -69,7 +69,7 @@ window.onload = () => {
 	// Event handler ketika tombol opencam diklik
 	$("#opencam").click(() => {
 		console.log("evoked openCam");
-		window.location.href = "/opencam";
+		window.location.href = "/detect";
 	});
 };
 // Fungsi untuk membaca URL gambar
