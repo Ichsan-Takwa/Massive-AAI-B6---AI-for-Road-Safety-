@@ -147,8 +147,6 @@ def opencam():
     y= result.pandas().xywh[0]["ycenter"][0] - (h//2)
     
     label = result.pandas().xyxy[0]['name'][0]
-    if (label == "SleepyDriving" or label == 'Yawn'):
-        result.save()
     confidence = round(float(result.crop()[0]["conf"]),2)
  
     # Memeriksa hasil deteksi
