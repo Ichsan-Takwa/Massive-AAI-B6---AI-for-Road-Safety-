@@ -146,7 +146,7 @@ def opencam():
     x = result.pandas().xywh[0]["xcenter"][0] - (w//2)
     y= result.pandas().xywh[0]["ycenter"][0] - (h//2)
     
-    label = result.pandas().xyxy[0]['name'][0]
+
     confidence = round(float(result.crop()[0]["conf"]),2)
  
     # Memeriksa hasil deteksi
@@ -172,7 +172,7 @@ def opencam():
                 prediction_counts[label].popleft()
 
                 # Menggunakan generator untuk stream frame
-                
+    label = result.pandas().xyxy[0]['name'][0]
     response = {
         "objects": [
              {"x": x, "y": y, "width": w, "height": h, "label": label, "confidence": confidence, "danger":danger}
